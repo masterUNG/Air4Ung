@@ -1,5 +1,8 @@
 import 'package:air4ung/utility/my_style.dart';
+import 'package:air4ung/utility/normal_dialog.dart';
+import 'package:air4ung/widget/my_service.dart';
 import 'package:air4ung/widget/register.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,8 +13,27 @@ class Authen extends StatefulWidget {
 
 class _AuthenState extends State<Authen> {
   // Field
+  String user = '', password = '';
 
   // Method
+  @override
+  void initState() {
+    super.initState();
+    checkStatus();
+  }
+
+  Future<void> checkStatus() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseUser firebaseUser = await firebaseAuth.currentUser();
+    if (firebaseUser != null) {
+      MaterialPageRoute route =
+          MaterialPageRoute(builder: (BuildContext buildContext) {
+        return MyService();
+      });
+      Navigator.of(context).pushAndRemoveUntil(route, (route) => false);
+    }
+  }
+
   Widget loginButton() {
     return Container(
       width: 250.0,
@@ -21,9 +43,25 @@ class _AuthenState extends State<Authen> {
           'Login',
           style: TextStyle(color: Colors.white),
         ),
-        onPressed: () {},
+        onPressed: () {
+          checkAuthen();
+        },
       ),
     );
+  }
+
+  Future<void> checkAuthen() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    await auth
+        .signInWithEmailAndPassword(email: user, password: password)
+        .then((response) {
+          checkStatus();
+        })
+        .catchError((response) {
+      String title = response.code;
+      String message = response.message;
+      normalDialog(context, title, message);
+    });
   }
 
   Widget newRegisterButton() {
@@ -51,6 +89,10 @@ class _AuthenState extends State<Authen> {
     return Container(
       width: 250.0,
       child: TextField(
+        keyboardType: TextInputType.emailAddress,
+        onChanged: (value) {
+          user = value.trim();
+        },
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: MyStyle().darkColor)),
@@ -65,6 +107,10 @@ class _AuthenState extends State<Authen> {
     return Container(
       width: 250.0,
       child: TextField(
+        obscureText: true,
+        onChanged: (value) {
+          password = value.trim();
+        },
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: MyStyle().darkColor)),
