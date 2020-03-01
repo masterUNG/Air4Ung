@@ -1,5 +1,6 @@
 import 'package:air4ung/utility/my_style.dart';
 import 'package:air4ung/widget/authen.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +11,50 @@ class MyService extends StatefulWidget {
 
 class _MyServiceState extends State<MyService> {
   // Field
+  String nameLogin = '';
+  String url = 'http://air4thai.pcd.go.th/services/getNewAQI_JSON.php?stationID=05t';
+  String resultName = '';
 
   // Method
+  @override
+  void initState() {
+    super.initState();
+    findNameLogin();
+    readAPI();
+  }
+
+  Future<void> readAPI()async{
+
+    try {
+
+      Response response = await Dio().get(url);
+      print('response = $response');
+      
+    } catch (e) {
+    }
+
+  }
+
+  Future<void> findNameLogin() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseUser firebaseUser = await auth.currentUser();
+    setState(() {
+      nameLogin = firebaseUser.displayName;
+      if (nameLogin == null) {
+        nameLogin = 'Unknow';
+      }
+    });
+  }
+
+  Widget showNameLogin() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text('$nameLogin Login'),
+      ],
+    );
+  }
+
   Widget signOutButton() {
     return IconButton(
       tooltip: 'SignOut',
@@ -25,10 +68,9 @@ class _MyServiceState extends State<MyService> {
   Future<void> signOutProcess() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     await auth.signOut().then((response) {
-
-      MaterialPageRoute route = MaterialPageRoute(builder: (context) => Authen());
+      MaterialPageRoute route =
+          MaterialPageRoute(builder: (context) => Authen());
       Navigator.of(context).pushAndRemoveUntil(route, (route) => false);
-
     });
   }
 
@@ -37,7 +79,7 @@ class _MyServiceState extends State<MyService> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MyStyle().darkColor,
-        actions: <Widget>[signOutButton()],
+        actions: <Widget>[showNameLogin(), signOutButton()],
         title: Text('Air4Ung'),
       ),
     );
