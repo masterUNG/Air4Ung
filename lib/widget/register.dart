@@ -1,4 +1,5 @@
 import 'package:air4ung/utility/my_style.dart';
+import 'package:air4ung/utility/normal_dialog.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
@@ -8,6 +9,7 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   // Field
+  String name, email, password;
 
   // Method
   Widget nameForm() {
@@ -18,6 +20,9 @@ class _RegisterState extends State<Register> {
         Container(
           width: 250.0,
           child: TextField(
+            onChanged: (String string) {
+              name = string.trim();
+            },
             decoration: InputDecoration(
               enabledBorder:
                   UnderlineInputBorder(borderSide: BorderSide(color: color)),
@@ -45,6 +50,9 @@ class _RegisterState extends State<Register> {
         Container(
           width: 250.0,
           child: TextField(
+            onChanged: (String string) {
+              email = string.trim();
+            },
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               enabledBorder:
@@ -73,6 +81,9 @@ class _RegisterState extends State<Register> {
         Container(
           width: 250.0,
           child: TextField(
+            onChanged: (String string) {
+              password = string.trim();
+            },
             decoration: InputDecoration(
               enabledBorder:
                   UnderlineInputBorder(borderSide: BorderSide(color: color)),
@@ -97,10 +108,25 @@ class _RegisterState extends State<Register> {
       margin: EdgeInsets.only(top: 20.0),
       width: 250.0,
       child: OutlineButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
         borderSide: BorderSide(color: MyStyle().darkColor),
-        child: Text('Register', style: TextStyle(color: MyStyle().darkColor),),
-        onPressed: () {},
+        child: Text(
+          'Register',
+          style: TextStyle(color: MyStyle().darkColor),
+        ),
+        onPressed: () {
+          print('name = $name, email = $email, password = $password');
+
+          if (name == null ||
+              name.isEmpty ||
+              email == null ||
+              email.isEmpty ||
+              password == null ||
+              password.isEmpty) {
+            normalDialog(context, 'Have Space', 'Please Fill Every Blank');
+          } else {}
+        },
       ),
     );
   }
