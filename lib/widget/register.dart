@@ -1,5 +1,7 @@
 import 'package:air4ung/utility/my_style.dart';
 import 'package:air4ung/utility/normal_dialog.dart';
+import 'package:air4ung/widget/my_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Register extends StatefulWidget {
@@ -125,10 +127,42 @@ class _RegisterState extends State<Register> {
               password == null ||
               password.isEmpty) {
             normalDialog(context, 'Have Space', 'Please Fill Every Blank');
-          } else {}
+          } else {
+            registerThread();
+          }
         },
       ),
     );
+  }
+
+  Future<void> registerThread() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((response) {
+      print('Register Success');
+      setupDisplayName();
+    }).catchError((response) {
+      String title = response.code;
+      String message = response.message;
+      normalDialog(context, title, message);
+    });
+  }
+
+  Future<void> setupDisplayName() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseUser firebaseUser = await firebaseAuth.currentUser();
+    UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+    userUpdateInfo.displayName = name;
+    firebaseUser.updateProfile(userUpdateInfo);
+
+    MaterialPageRoute route =
+        MaterialPageRoute(builder: (BuildContext buildContext) {
+      return MyService();
+    });
+    Navigator.of(context).pushAndRemoveUntil(route, (Route<dynamic> route) {
+      return false;
+    });
   }
 
   @override
